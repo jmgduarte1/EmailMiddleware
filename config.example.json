@@ -1,0 +1,26 @@
+{
+  "server": {
+    "port": 8080,
+    "allowedOrigins": [
+      "http://localhost:4200",
+      "https://your-portfolio-domain.example"
+    ],
+    "trustProxy": false
+  },
+  "rateLimit": {
+    "windowMinutes": 15,
+    "maxRequests": 5
+  },
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 465,
+    "secure": true,
+    "user": "your-gmail-address@gmail.com",
+    "password": "your-gmail-app-password"
+  },
+  "mail": {
+    "to": "destination@example.com",
+    "fromName": "Portfolio Contact Form",
+    "subjectPrefix": "[Portfolio]"
+  }
+}

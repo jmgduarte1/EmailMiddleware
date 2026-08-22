@@ -1,0 +1,28 @@
+{
+  "name": "email-middleware",
+  "version": "0.1.0",
+  "description": "Small email delivery middleware for the PortfolioJMGD contact form.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "contact-form",
+    "email",
+    "express",
+    "nodemailer"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "nodemailer": "^7.0.10"
+  },
+  "devDependencies": {}
+}

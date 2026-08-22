@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log*
+
+# Private runtime configuration. Copy config.example.json to config.json locally.
+config.json
+
+# Local environment overrides
+.env
+.env.*
+
+# Logs and coverage
+logs/
+*.log
+coverage/
