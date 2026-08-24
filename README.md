@@ -22,6 +22,21 @@ Required production secret variables are `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_TO`
 
 For local Turnstile testing, Cloudflare provides the always-pass secret `1x0000000000000000000000000000000AA`, paired with the public site key in the Angular development configuration. Never use test keys in production.
 
+For direct Postman testing with the literal dummy token `XXXX.DUMMY.TOKEN.XXXX`, set:
+
+```json
+{
+  "turnstile": {
+    "secretKey": "1x0000000000000000000000000000000AA",
+    "expectedHostnames": ["example.com"],
+    "expectedAction": "",
+    "timeoutMs": 5000
+  }
+}
+```
+
+The manual dummy token validates successfully but does not behave exactly like a browser-generated widget token. Keep stricter hostname/action checks for real frontend integration and production.
+
 ## Run
 
 ```bash

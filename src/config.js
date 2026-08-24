@@ -43,7 +43,7 @@ function loadConfig() {
       secretKey: process.env.TURNSTILE_SECRET_KEY || config.turnstile?.secretKey,
       expectedHostnames:
         readList(process.env.TURNSTILE_EXPECTED_HOSTNAMES) || config.turnstile?.expectedHostnames || [],
-      expectedAction: process.env.TURNSTILE_EXPECTED_ACTION || config.turnstile?.expectedAction || 'contact',
+      expectedAction: readOptionalString(process.env.TURNSTILE_EXPECTED_ACTION, config.turnstile?.expectedAction, 'contact'),
       timeoutMs: Number(process.env.TURNSTILE_TIMEOUT_MS || config.turnstile?.timeoutMs || 5000),
     },
   };
@@ -96,6 +96,12 @@ function readList(value) {
 function readBoolean(value, fallback) {
   if (value === undefined) return fallback;
   return value === 'true';
+}
+
+function readOptionalString(envValue, configValue, fallback) {
+  if (envValue !== undefined) return envValue;
+  if (configValue !== undefined) return configValue;
+  return fallback;
 }
 
 module.exports = {
