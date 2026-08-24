@@ -623,6 +623,26 @@ Changes to the shared API contract may require documentation updates in both rep
 
 ---
 
+## MD-023 — Public Contact Requests Use Abuse Verification, Not Shared Authentication
+
+**Status:** Accepted
+
+The browser-facing contact endpoint uses Cloudflare Turnstile, a honeypot, validation, and rate limiting instead of a permanent browser credential.
+
+### Rationale
+
+A credential delivered to a public Angular application can be extracted and replayed. Turnstile provides a short-lived, single-use token whose secret verification credential remains server-side.
+
+### Consequences
+
+* Every accepted submission must pass server-side Turnstile verification.
+* Expected hostname and action values are checked.
+* Verification failure or provider unavailability prevents email delivery.
+* The frontend never receives `TURNSTILE_SECRET_KEY`.
+* Production secrets are injected as runtime environment variables.
+
+---
+
 ## Decision Maintenance
 
 Record a new decision when it materially affects:

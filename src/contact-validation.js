@@ -7,6 +7,8 @@ function validateContactSubmission(body) {
     email: normalizeText(body?.email).toLowerCase(),
     company: normalizeText(body?.company),
     message: normalizeMessage(body?.message),
+    turnstileToken: normalizeText(body?.turnstileToken),
+    website: normalizeText(body?.website),
   };
 
   if (submission.name.length < 2 || submission.name.length > 120) {
@@ -25,12 +27,23 @@ function validateContactSubmission(body) {
     errors.message = 'Message must be between 20 and 5000 characters.';
   }
 
+  if (!submission.turnstileToken || submission.turnstileToken.length > 2048) {
+    errors.verification = 'Verification is required.';
+  }
+
+  if (submission.website) {
+    errors.verification = 'Verification failed.';
+  }
+
   return {
     ok: Object.keys(errors).length === 0,
     errors,
     value: {
-      ...submission,
+      name: submission.name,
+      email: submission.email,
       company: submission.company || undefined,
+      message: submission.message,
+      turnstileToken: submission.turnstileToken,
       createdAt: new Date().toISOString(),
     },
   };

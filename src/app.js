@@ -2,18 +2,26 @@ const cors = require('cors');
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { randomUUID } = require('node:crypto');
 const { sendContactEmail } = require('./mailer');
 const { validateContactSubmission } = require('./contact-validation');
+const { verifyTurnstile } = require('./turnstile');
 
 function createApp(config, options = {}) {
   const app = express();
   const sendEmail = options.sendEmail || ((submission) => sendContactEmail(config, submission));
+  const verifyChallenge = options.verifyChallenge || ((token, remoteIp) => verifyTurnstile(config, token, remoteIp));
 
   if (config.server.trustProxy) {
     app.set('trust proxy', 1);
   }
 
   app.use(helmet());
+  app.use((req, res, next) => {
+    req.requestId = randomUUID();
+    res.setHeader('x-request-id', req.requestId);
+    next();
+  });
   app.use(express.json({ limit: '20kb' }));
   app.use(
     cors({
@@ -23,7 +31,9 @@ function createApp(config, options = {}) {
           return;
         }
 
-        callback(new Error('Origin not allowed by CORS.'));
+        const error = new Error('Origin not allowed by CORS.');
+        error.code = 'CORS_DENIED';
+        callback(error);
       },
     }),
   );
@@ -45,7 +55,15 @@ function createApp(config, options = {}) {
     }
 
     try {
-      await sendEmail(validation.value);
+      const verification = await verifyChallenge(validation.value.turnstileToken, req.ip);
+      if (!verification.ok) {
+        console.warn('Contact verification rejected:', { requestId: req.requestId, reason: verification.reason });
+        res.status(400).json({ ok: false, message: 'Unable to verify this submission. Please try again.' });
+        return;
+      }
+
+      const { turnstileToken: _turnstileToken, ...submission } = validation.value;
+      await sendEmail(submission);
       res.status(200).json({
         ok: true,
         message: 'Message sent.',
@@ -56,10 +74,11 @@ function createApp(config, options = {}) {
   });
 
   app.use((err, _req, res, _next) => {
-    console.error('Request failed:', safeError(err));
-    res.status(500).json({
+    console.error('Request failed:', { requestId: _req.requestId, ...safeError(err) });
+    const corsDenied = err?.code === 'CORS_DENIED';
+    res.status(corsDenied ? 403 : 500).json({
       ok: false,
-      message: 'Unable to send message right now.',
+      message: corsDenied ? 'Request origin is not allowed.' : 'Unable to send message right now.',
     });
   });
 
@@ -85,7 +104,7 @@ function createContactLimiter(config) {
 function safeError(error) {
   return {
     name: error?.name,
-    message: error?.message,
+    category: error?.code || 'UNEXPECTED_ERROR',
   };
 }
 

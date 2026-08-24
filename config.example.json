@@ -22,5 +22,11 @@
     "to": "destination@example.com",
     "fromName": "Portfolio Contact Form",
     "subjectPrefix": "[Portfolio]"
+  },
+  "turnstile": {
+    "secretKey": "your-server-only-turnstile-secret",
+    "expectedHostnames": ["localhost"],
+    "expectedAction": "contact",
+    "timeoutMs": 5000
   }
 }

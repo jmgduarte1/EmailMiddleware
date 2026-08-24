@@ -310,7 +310,7 @@ MAIL_FROM_NAME
 MAIL_SUBJECT_PREFIX
 ```
 
-Configuration should be loaded centrally rather than accessing environment variables throughout unrelated application code.
+Configuration should be loaded centrally rather than accessing environment variables throughout unrelated application code. Environment variables override local JSON configuration. Production deployments should inject secrets directly into the process rather than generating a deployable configuration file containing secrets.
 
 Startup should fail clearly when required production configuration is missing.
 
@@ -367,6 +367,12 @@ Possible layers include:
 * Provider-specific abuse protection.
 
 Spam logic should remain separate enough that the mechanism can change without modifying the public API contract.
+
+### Implemented Layers
+
+The endpoint currently combines IP-based rate limiting, an empty honeypot field, and Cloudflare Turnstile verification. Each valid submission must pass the expected Turnstile hostname and `contact` action checks within a bounded timeout. Verification fails closed.
+
+The browser receives only the public site key. `TURNSTILE_SECRET_KEY` remains server-side, and the short-lived, single-use token is removed before email composition.
 
 ---
 

@@ -16,7 +16,11 @@ Create your private config:
 copy config.example.json config.json
 ```
 
-Edit `config.json` with your Gmail address, Gmail app password, destination email, allowed origins, and deployment port.
+Edit `config.json` for local development only. Production secrets should be supplied directly as runtime environment variables; do not generate or deploy a file containing secrets.
+
+Required production secret variables are `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_TO`, and `TURNSTILE_SECRET_KEY`. Set `ALLOWED_ORIGINS` and `TURNSTILE_EXPECTED_HOSTNAMES` as comma-separated lists.
+
+For local Turnstile testing, Cloudflare provides the always-pass secret `1x0000000000000000000000000000000AA`, paired with the public site key in the Angular development configuration. Never use test keys in production.
 
 ## Run
 
@@ -37,9 +41,13 @@ POST http://localhost:8080/api/contact
   "name": "Recruiter Name",
   "email": "recruiter@example.com",
   "company": "Company Name",
-  "message": "Opportunity details, including job post link if available."
+  "message": "Opportunity details, including job post link if available.",
+  "turnstileToken": "single-use-token-from-the-widget",
+  "website": ""
 }
 ```
+
+`website` is an intentionally empty honeypot field. Turnstile tokens are verified server-side and are never forwarded to email delivery.
 
 ## Success Response
 
